@@ -8,6 +8,7 @@
     {
       "matches": ["https://*.content-service.brightspace.com/*"],
       "js": ["arrive.min.js", "content-script.js"],
+      "css": ["styles.css"],
       "run_at": "document_idle"
     }
   ],

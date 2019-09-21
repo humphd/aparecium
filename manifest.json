@@ -7,8 +7,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.content-service.brightspace.com/*"],
-      "all_frames": true,
-      "js": ["content-script.js"],
+      "js": ["arrive.min.js", "content-script.js"],
       "run_at": "document_idle"
     }
   ],

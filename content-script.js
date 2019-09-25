@@ -1,6 +1,13 @@
 const scormContentSelector = 'iframe#ScormContent';
 const accessibleContentSelector = '.cp-accessibility';
 
+// Convert a <p> to a <span> and return outer HTML string
+const pToSpanHTML = (p) => {
+  const elem = document.createElement('span');
+  elem.innerHTML = p.innerHTML;
+  return elem.outerHTML;
+};
+
 // Text will be hidden in the DOM in <div>s with the cp-accessibility class
 function findAccessible(doc) {
   const nodes = doc.querySelectorAll(accessibleContentSelector);
@@ -12,18 +19,23 @@ function findAccessible(doc) {
 
   const accessibleElements = [];
   for(node of nodes) {
-    // Remove "Skip to Main Content" node
-    if(node.innerText === 'Skip to Main Content') continue;
-    if(node.innerText === 'Trigger this button to go to the next slide') continue;
-    if(node.innerText === 'Trigger this button to go to the previous slide') continue;
+    // Remove navigation text nodes
+    if(node.innerText.trim() === 'Skip to Main Content') continue;
+    if(node.innerText.trim() === 'Trigger this button to go to the next slide') continue;
+    if(node.innerText.trim() === 'Trigger this button to go to the previous slide') continue;
+    if(node.innerText.trim() === 'Trigger this button to exit') continue;
+
 
     // Grab everything inside a DIV container
     if(node.nodeName === 'DIV') {
       accessibleElements.push(node.innerHTML);
     }
-    // Use the accessible node itself, (e.g., <p> or <a>)
+    // Turn <p> into <span> so we connect text that's actually meant to be a single paragraph.
+    else if(node.nodeName === 'P') {
+      accessibleElements.push(pToSpanHTML(node));
+    }
+    // Use the accessible node itself, (e.g., <a>)
     else {
-      // TODO: with given a bunch of <p> and <a> outside of a <div>, can I join them?
       accessibleElements.push(node.outerHTML);
     }
   }
@@ -32,12 +44,15 @@ function findAccessible(doc) {
 }
 
 // Deal with End-Of-Text (ETX, 0x03), which seems to signal the start of a bullet
-const cleanETX = elem => elem.replace(/\x03\s*/g, '<br><li>');
+const cleanETX = elem => elem.replace(/\x03\s*/g, '<br>');
+// Ignore things like <p> </p>
+const cleanEmpty = elem => elem.replace(/^<[^>]+>\s+<\/[^>]+>$/, '');
 
 function addButton(frame) {
   const button = document.createElement('button');
   button.id = 'aparecium-button';
-  button.innerHTML = 'Aparecium';
+  // Include Unicode Sparkles - https://graphemica.com/✨
+  button.innerHTML = '&#10024; Aparecium';
   button.onclick = function() {
     const elems = findAccessible(frame.contentDocument);
     if(elems) {
@@ -58,6 +73,8 @@ function addButton(frame) {
       for(elem of elems) {
         // Deal with End-Of-Text (ETX, 0x03), which seems to signal the start of a bullet
         elem = cleanETX(elem);
+        // Remove empty elements
+        elem = cleanEmpty(elem);
 
         div.innerHTML += elem;
       }

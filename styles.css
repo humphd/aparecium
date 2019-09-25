@@ -2,8 +2,45 @@
     position: fixed;
     bottom: 10px;
     right: 10px;
+
+    color: #494949 !important;
+    text-decoration: none;
+    background: #ffffff;
+    padding: 5px;
+    border: 2px solid #494949 !important;
+    display: inline-block;
+    transition: all 0.4s ease 0s;
+}
+#aparecium-button:hover {
+    color: #ffffff !important;
+    background: #f6b93b;
+    border-color: #f6b93b !important;
+    transition: all 0.4s ease 0s;
+}
+
+#aparecium-wrapper {
+    width: 100%;
 }
 
 #aparecium-text {
-    padding: 20px;
+    /* Same as scrom iframe */
+    width: 1024px;
+
+    /* Border */
+    border: 1px;
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(59, 64, 69, 0.1);
+    max-width: 34em;
+    margin: 2rem auto;
+    padding: 2rem;
+
+    /* Readable text */
+    font-size: 1.3em;
+    line-height: 1.75;
+    font-family: 'Merriweather', Georgia, 'Times New Roman', Times, serif;
+    color: #252525;
+}
+
+#aparecium-text a {
+    text-decoration: underline;
 }

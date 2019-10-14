@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A charm that reveals secret messages written in invisible ink, or any other hidden markings written using other means.",
   "scripts": {
-    "build": "parcel build src/index.js --out-file aparecium.js --out-dir src --no-minify --no-source-maps"
+    "bundle": "parcel build src/index.js --out-file aparecium.js --out-dir src --no-minify --no-source-maps",
+    "prebuild": "npm run bundle",
+    "build": "cd src && crx pack -o ../aparecium.crx"
   },
   "repository": {
     "type": "git",
@@ -16,6 +18,7 @@
   },
   "homepage": "https://github.com/humphd/aparecium#readme",
   "devDependencies": {
+    "crx": "^5.0.1",
     "parcel": "^1.12.4"
   },
   "dependencies": {

@@ -8,7 +8,7 @@ other hidden markings written using other means.
 
 ## Build
 
-To build the extension in `src/`:
+To build the extension in `./aparecium.crx`:
 
 ```
 npm install

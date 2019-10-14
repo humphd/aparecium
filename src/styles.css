@@ -18,13 +18,14 @@
     transition: all 0.4s ease 0s;
 }
 
-#aparecium-wrapper {
+.aparecium-wrapper {
     width: 100%;
 }
 
-#aparecium-text {
+.aparecium-text {
     /* Same as scrom iframe */
     width: 1024px;
+    overflow-y: auto;
 
     /* Border */
     border: 1px;
@@ -41,6 +42,6 @@
     color: #252525;
 }
 
-#aparecium-text a {
+.aparecium-text a {
     text-decoration: underline;
 }

@@ -1,0 +1,25 @@
+{
+  "name": "aparecium",
+  "version": "1.0.0",
+  "description": "A charm that reveals secret messages written in invisible ink, or any other hidden markings written using other means.",
+  "scripts": {
+    "build": "parcel build src/index.js --out-file aparecium.js --out-dir src --no-minify --no-source-maps"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/humphd/aparecium.git"
+  },
+  "author": "David Humphrey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/humphd/aparecium/issues"
+  },
+  "homepage": "https://github.com/humphd/aparecium#readme",
+  "devDependencies": {
+    "parcel": "^1.12.4"
+  },
+  "dependencies": {
+    "arrive": "^2.4.1",
+    "simple-lightbox": "^2.1.0"
+  }
+}

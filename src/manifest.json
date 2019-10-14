@@ -1,16 +1,19 @@
 {
   "name": "Aparecium",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "manifest_version": 2,
   "description": "A charm to reveal secret messages",
   "homepage_url": "https://github.com/humphd/aparecium",
   "content_scripts": [
     {
       "matches": ["https://*.content-service.brightspace.com/*"],
-      "js": ["arrive.min.js", "content-script.js"],
-      "css": ["styles.css"],
+      "js": ["aparecium.js"],
+      "css": ["aparecium.css"],
       "run_at": "document_idle"
     }
+  ],
+  "web_accessible_resources": [
+    "content-script.js.map"
   ],
   "permissions": [
     "activeTab"
@@ -23,7 +26,7 @@
       "64": "images/icon64.png",
       "128": "images/icon128.png"
     },
-    "default_title": "Aparecium: charm to reveal secret messages"      // optional; shown in tooltip
+    "default_title": "Aparecium: charm to reveal secret messages"
   },
   "icons": {
     "16": "images/icon16.png",

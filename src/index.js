@@ -1,5 +1,19 @@
+// https://dbrekalo.github.io/simpleLightbox/
+const SimpleLightbox  = require('simple-lightbox');
+
+// CSS
+require('./styles.css');
+require('../node_modules/simple-lightbox/dist/simpleLightbox.min.css');
+
 const scormContentSelector = 'iframe#ScormContent';
 const accessibleContentSelector = '.cp-accessibility';
+
+// Wait on the ScormContent frame
+require('arrive');
+document.arrive(scormContentSelector, {fireOnAttributesModification: true}, function() {
+  document.unbindArrive();
+  addButton(this);
+});
 
 // Convert a <p> to a <span> and return outer HTML string
 const pToSpanHTML = (p) => {
@@ -48,6 +62,13 @@ const cleanETX = elem => elem.replace(/\x03\s*/g, '<br>');
 // Ignore things like <p> </p>
 const cleanEmpty = elem => elem.replace(/^<[^>]+>\s+<\/[^>]+>$/, '');
 
+function wrapDiv(div) {
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('aparecium-wrapper');
+  wrapper.appendChild(div);
+  return wrapper;
+}
+
 function addButton(frame) {
   const button = document.createElement('button');
   button.id = 'aparecium-button';
@@ -55,43 +76,32 @@ function addButton(frame) {
   button.innerHTML = '&#10024; Aparecium';
   button.onclick = function() {
     const elems = findAccessible(frame.contentDocument);
-    if(elems) {
-      console.log('Aparecium', elems);
-
-      // Inject in DOM for testing
-      let div = document.querySelector('#aparecium-text');
-      if(!div) {
-        div = document.createElement('div');
-        div.id = 'aparecium-text';
-        document.body.append(div);
-      }
-
-      // Clear from previous attempt
-      div.innerHTML = '';
-
-      // Process and insert all relevant accessible text elements
-      for(elem of elems) {
-        // Deal with End-Of-Text (ETX, 0x03), which seems to signal the start of a bullet
-        elem = cleanETX(elem);
-        // Remove empty elements
-        elem = cleanEmpty(elem);
-
-        div.innerHTML += elem;
-      }
-
-      div.scrollIntoView();
+    if(!elems) {
+      return;
     }
+     
+    console.log('Aparecium', elems);
+
+    const div = document.createElement('div');
+    div.classList.add('aparecium-text');
+
+    // Process and insert all relevant accessible text elements
+    for(elem of elems) {
+      // Deal with End-Of-Text (ETX, 0x03), which seems to signal the start of a bullet
+      elem = cleanETX(elem);
+      // Remove empty elements
+      elem = cleanEmpty(elem);
+
+      div.innerHTML += elem;
+    }
+
+    console.log('html', div.outerHTML);
+
+    SimpleLightbox.open({
+      content: wrapDiv(div).outerHTML,
+      elementClass: 'slbContentEl'
+    });
   };
+
   document.body.appendChild(button);
 }
-
-// TODO: switch to npm and parcel to build this - https://github.com/uzairfarooq/arrive
-// Wait on the ScormContent frame
-document.arrive(scormContentSelector, {fireOnAttributesModification: true}, function() {
-  document.unbindArrive();
-  addButton(this);
-});
-
-window.addEventListener("moduleReadyEvent", function(evt) {
-  console.log('moduleReadyEvent', evt);
-});

@@ -1202,6 +1202,16 @@ var cleanETX = function cleanETX(elem) {
 
 var cleanEmpty = function cleanEmpty(elem) {
   return elem.replace(/^<[^>]+>\s+<\/[^>]+>$/, '');
+}; // Ignore `$$cpInfoCurrentSlide$$ of $$cpInfoSlideCount$$` text
+
+
+var cleanSlideOfSlide = function cleanSlideOfSlide(elem) {
+  return elem.replace(/<p>\s*(\$\$.+\$\$)*\s*<\/p>/, '');
+}; // Ignore Previous and Next
+
+
+var cleanPreviousNext = function cleanPreviousNext(elem) {
+  return elem.replace(/<p>\s*(Previous|Next|Image)\s*<\/p>/, '');
 };
 
 function wrapDiv(div) {
@@ -1238,7 +1248,11 @@ function addButton(frame) {
         // Deal with End-Of-Text (ETX, 0x03), which seems to signal the start of a bullet
         elem = cleanETX(elem); // Remove empty elements
 
-        elem = cleanEmpty(elem);
+        elem = cleanEmpty(elem); // Remove "slide m of n"
+
+        elem = cleanSlideOfSlide(elem); // Remove UI widgets like Previous, Next, Image, etc.
+
+        elem = cleanPreviousNext(elem);
         div.innerHTML += elem;
       }
     } catch (err) {

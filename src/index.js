@@ -61,6 +61,11 @@ function findAccessible(doc) {
 const cleanETX = elem => elem.replace(/\x03\s*/g, '<br>');
 // Ignore things like <p> </p>
 const cleanEmpty = elem => elem.replace(/^<[^>]+>\s+<\/[^>]+>$/, '');
+// Ignore `$$cpInfoCurrentSlide$$ of $$cpInfoSlideCount$$` text
+const cleanSlideOfSlide = elem => elem.replace(/<p>\s*(\$\$.+\$\$)*\s*<\/p>/, '');
+// Ignore Previous and Next
+const cleanPreviousNext = elem => elem.replace(/<p>\s*(Previous|Next|Image)\s*<\/p>/, '');
+
 
 function wrapDiv(div) {
   const wrapper = document.createElement('div');
@@ -91,6 +96,10 @@ function addButton(frame) {
       elem = cleanETX(elem);
       // Remove empty elements
       elem = cleanEmpty(elem);
+      // Remove "slide m of n"
+      elem = cleanSlideOfSlide(elem);
+      // Remove UI widgets like Previous, Next, Image, etc.
+      elem = cleanPreviousNext(elem);
 
       div.innerHTML += elem;
     }

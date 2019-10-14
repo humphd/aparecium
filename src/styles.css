@@ -3,10 +3,11 @@
     bottom: 10px;
     right: 10px;
 
+    border-radius: 20px;
     color: #494949 !important;
     text-decoration: none;
     background: #ffffff;
-    padding: 5px;
+    padding: 7px;
     border: 2px solid #494949 !important;
     display: inline-block;
     transition: all 0.4s ease 0s;

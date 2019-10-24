@@ -27,6 +27,7 @@
     /* Same as scrom iframe */
     width: 1024px;
     overflow-y: auto;
+    position: relative;
 
     /* Border */
     border: 1px;
@@ -45,4 +46,28 @@
 
 .aparecium-text a {
     text-decoration: underline;
+}
+
+.aparecium-copy-btn {
+    border-radius: 20px;
+    color: #494949 !important;
+    text-decoration: none;
+    background: #ffffff;
+    padding: 7px;
+    border: 2px solid #494949 !important;
+    display: inline-block;
+    outline: 0;
+    transition: all 0.4s ease 0s;
+    
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 9999;
+}
+
+.aparecium-copy-btn:hover {
+    color: #ffffff !important;
+    background: #f6b93b;
+    border-color: #f6b93b !important;
+    transition: all 0.4s ease 0s;
 }

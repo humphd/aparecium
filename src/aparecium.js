@@ -652,6 +652,56 @@ var define;
 
 }));
 
+},{}],"UCF4":[function(require,module,exports) {
+/* global DOMException */
+
+module.exports = clipboardCopy
+
+function clipboardCopy (text) {
+  // Use the Async Clipboard API when available. Requires a secure browing
+  // context (i.e. HTTPS)
+  if (navigator.clipboard) {
+    return navigator.clipboard.writeText(text).catch(function (err) {
+      throw (err !== undefined ? err : new DOMException('The request is not allowed', 'NotAllowedError'))
+    })
+  }
+
+  // ...Otherwise, use document.execCommand() fallback
+
+  // Put the text to copy into a <span>
+  var span = document.createElement('span')
+  span.textContent = text
+
+  // Preserve consecutive spaces and newlines
+  span.style.whiteSpace = 'pre'
+
+  // Add the <span> to the page
+  document.body.appendChild(span)
+
+  // Make a selection object representing the range of text selected by the user
+  var selection = window.getSelection()
+  var range = window.document.createRange()
+  selection.removeAllRanges()
+  range.selectNode(span)
+  selection.addRange(range)
+
+  // Copy text to the clipboard
+  var success = false
+  try {
+    success = window.document.execCommand('copy')
+  } catch (err) {
+    console.log('error', err)
+  }
+
+  // Cleanup
+  selection.removeAllRanges()
+  window.document.body.removeChild(span)
+
+  return success
+    ? Promise.resolve()
+    : Promise.reject(new DOMException('The request is not allowed', 'NotAllowedError'))
+}
+
 },{}],"Tnu0":[function(require,module,exports) {
 
 },{}],"OvzY":[function(require,module,exports) {
@@ -1118,7 +1168,10 @@ var Arrive = (function(window, $, undefined) {
 })(window, typeof jQuery === 'undefined' ? null : jQuery, undefined);
 },{}],"Focm":[function(require,module,exports) {
 // https://dbrekalo.github.io/simpleLightbox/
-var SimpleLightbox = require('simple-lightbox'); // CSS
+var SimpleLightbox = require('simple-lightbox'); // https://github.com/feross/clipboard-copy
+
+
+var copy = require('clipboard-copy'); // CSS
 
 
 require('./styles.css');
@@ -1212,6 +1265,11 @@ var cleanSlideOfSlide = function cleanSlideOfSlide(elem) {
 
 var cleanPreviousNext = function cleanPreviousNext(elem) {
   return elem.replace(/<p>\s*(Previous|Next|Image)\s*<\/p>/, '');
+}; // Ignore various navigation button labels
+
+
+var cleanNavButtons = function cleanNavButtons(elem) {
+  return elem.replace(/<p>\s*(Close|Submit|Suggested answer) button\s*<\/p>/, '');
 };
 
 function wrapDiv(div) {
@@ -1235,8 +1293,16 @@ function addButton(frame) {
     }
 
     console.log('Aparecium', elems);
+    var containerDiv = document.createElement('div'); /// Add copy all button
+
+    var copyBtn = document.createElement('button');
+    copyBtn.innerHTML = 'Copy All';
+    copyBtn.classList.add('aparecium-copy-btn');
+    containerDiv.appendChild(copyBtn); // Wrap all text in its own div for easy extraction
+
     var div = document.createElement('div');
-    div.classList.add('aparecium-text'); // Process and insert all relevant accessible text elements
+    div.classList.add('aparecium-text');
+    containerDiv.appendChild(div); // Process and insert all relevant accessible text elements
 
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
@@ -1252,7 +1318,9 @@ function addButton(frame) {
 
         elem = cleanSlideOfSlide(elem); // Remove UI widgets like Previous, Next, Image, etc.
 
-        elem = cleanPreviousNext(elem);
+        elem = cleanPreviousNext(elem); // Remove nav button labels
+
+        elem = cleanNavButtons(elem);
         div.innerHTML += elem;
       }
     } catch (err) {
@@ -1270,13 +1338,44 @@ function addButton(frame) {
       }
     }
 
-    console.log('html', div.outerHTML);
+    console.log('html', div.outerHTML); // We need to wait for the lightbox to inject the HTML we need, which
+    // includes the button for which we want to add an event listener.
+
+    document.arrive('.aparecium-copy-btn', {
+      fireOnAttributesModification: true
+    }, function () {
+      document.unbindArrive();
+      document.querySelector('.aparecium-copy-btn').addEventListener('click', function (evt) {
+        evt.preventDefault();
+        var div = document.querySelector('.aparecium-text');
+
+        if (!div) {
+          console.log('Unable to copy text, no text div!');
+          return false;
+        } // Copy everything to the clipboard
+
+
+        copy(div.innerText); // Let the user know it worked
+
+        evt.target.innerHTML = 'Copied!'; // Reset text in a few seconds
+
+        setTimeout(function () {
+          var btn = document.querySelector('.aparecium-copy-btn');
+
+          if (btn) {
+            btn.innerHTML = 'Copy All';
+          }
+        }, 2000);
+        console.log('Copied to clipboard');
+        return false;
+      });
+    });
     SimpleLightbox.open({
-      content: wrapDiv(div).outerHTML,
+      content: wrapDiv(containerDiv).outerHTML,
       elementClass: 'slbContentEl'
     });
   };
 
   document.body.appendChild(button);
 }
-},{"simple-lightbox":"A6Qc","./styles.css":"Tnu0","../node_modules/simple-lightbox/dist/simpleLightbox.min.css":"Tnu0","arrive":"OvzY"}]},{},["Focm"], null)
+},{"simple-lightbox":"A6Qc","clipboard-copy":"UCF4","./styles.css":"Tnu0","../node_modules/simple-lightbox/dist/simpleLightbox.min.css":"Tnu0","arrive":"OvzY"}]},{},["Focm"], null)

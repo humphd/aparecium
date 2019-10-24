@@ -1,5 +1,7 @@
 // https://dbrekalo.github.io/simpleLightbox/
 const SimpleLightbox  = require('simple-lightbox');
+// https://github.com/feross/clipboard-copy
+const copy = require('clipboard-copy');
 
 // CSS
 require('./styles.css');
@@ -65,7 +67,8 @@ const cleanEmpty = elem => elem.replace(/^<[^>]+>\s+<\/[^>]+>$/, '');
 const cleanSlideOfSlide = elem => elem.replace(/<p>\s*(\$\$.+\$\$)*\s*<\/p>/, '');
 // Ignore Previous and Next
 const cleanPreviousNext = elem => elem.replace(/<p>\s*(Previous|Next|Image)\s*<\/p>/, '');
-
+// Ignore various navigation button labels
+const cleanNavButtons = elem => elem.replace(/<p>\s*(Close|Submit|Suggested answer) button\s*<\/p>/, '');
 
 function wrapDiv(div) {
   const wrapper = document.createElement('div');
@@ -87,8 +90,18 @@ function addButton(frame) {
      
     console.log('Aparecium', elems);
 
+    const containerDiv = document.createElement('div');
+
+    /// Add copy all button
+    const copyBtn = document.createElement('button');
+    copyBtn.innerHTML = 'Copy All'
+    copyBtn.classList.add('aparecium-copy-btn');
+    containerDiv.appendChild(copyBtn);
+    
+    // Wrap all text in its own div for easy extraction
     const div = document.createElement('div');
     div.classList.add('aparecium-text');
+    containerDiv.appendChild(div);
 
     // Process and insert all relevant accessible text elements
     for(elem of elems) {
@@ -100,14 +113,48 @@ function addButton(frame) {
       elem = cleanSlideOfSlide(elem);
       // Remove UI widgets like Previous, Next, Image, etc.
       elem = cleanPreviousNext(elem);
+      // Remove nav button labels
+      elem = cleanNavButtons(elem);
 
       div.innerHTML += elem;
     }
 
     console.log('html', div.outerHTML);
 
+    // We need to wait for the lightbox to inject the HTML we need, which
+    // includes the button for which we want to add an event listener.
+    document.arrive('.aparecium-copy-btn', {fireOnAttributesModification: true}, function() {
+      document.unbindArrive();
+
+      document.querySelector('.aparecium-copy-btn').addEventListener('click', function(evt) {
+        evt.preventDefault();
+  
+        const div = document.querySelector('.aparecium-text');
+        if(!div) {
+          console.log('Unable to copy text, no text div!');
+          return false;
+        }
+      
+        // Copy everything to the clipboard
+        copy(div.innerText);
+  
+        // Let the user know it worked
+        evt.target.innerHTML = 'Copied!';
+        // Reset text in a few seconds
+        setTimeout(function() {
+          const btn = document.querySelector('.aparecium-copy-btn');
+          if(btn) {
+            btn.innerHTML = 'Copy All';
+          }
+        }, 2000);
+
+        console.log('Copied to clipboard');
+        return false;
+      });
+    });
+
     SimpleLightbox.open({
-      content: wrapDiv(div).outerHTML,
+      content: wrapDiv(containerDiv).outerHTML,
       elementClass: 'slbContentEl'
     });
   };

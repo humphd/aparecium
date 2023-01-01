@@ -19,7 +19,7 @@
   "homepage": "https://github.com/humphd/aparecium#readme",
   "devDependencies": {
     "crx": "^5.0.1",
-    "parcel": "^1.12.4"
+    "parcel": "^2.8.2"
   },
   "dependencies": {
     "arrive": "^2.4.1",
